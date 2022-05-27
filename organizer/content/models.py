@@ -3,6 +3,7 @@ from django.db import models
 class Track(models.Model):
     class Meta:
         db_table='tracks'
+        ordering=['name', 'layout']
     
     name = models.CharField(
         max_length=100, 
@@ -48,6 +49,7 @@ class Track(models.Model):
 class Car(models.Model):
     class Meta:
         db_table='cars'
+        ordering=['name']
     
     name = models.CharField(
         max_length=20, 

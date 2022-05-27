@@ -6,11 +6,18 @@ COUNTRIES = [('AF', 'Afghanistan'), ('AX', 'Åland Islands'), ('AL', 'Albania'),
 class Driver(models.Model):
     class Meta:
         db_table='drivers'
+        ordering=['name']
     
     user = models.OneToOneField(
         User, 
         on_delete=models.PROTECT,
         related_name='driver'
+    )
+
+    name = models.CharField(
+        max_length=20,
+        default=User.get_username(),
+        unique=True
     )
 
     teams = models.ManyToManyField(

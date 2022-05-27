@@ -4,6 +4,7 @@ from django.contrib.auth.models import User
 class League(models.Model):
     class Meta:
         abstract = True
+        ordering = ['-created']
     
     name = models.CharField(max_length=50)
     website = models.CharField(max_length=500, blank=True)
@@ -104,6 +105,7 @@ class SingleLeague(League):
 class Race(models.Model):
     class Meta:
         db_table='races'
+        ordering=['league', 'datetime']
     
     datetime = models.DateTimeField()
     league = models.ForeignKey(
@@ -192,6 +194,7 @@ class Race(models.Model):
 class RaceResults(models.Model):
     class Meta:
         db_table='race_results'
+        ordering=['race', 'driver', '-attended_race', '-finished_race', 'race_position']
     
     driver = models.ForeignKey(
         'drivers.Driver',
@@ -218,6 +221,7 @@ class RaceResults(models.Model):
 class Penalty(models.Model):
     class Meta:
         db_table='penalties'
+        order_with_respect_to='results'
     
     results = models.ForeignKey(
         RaceResults, 
