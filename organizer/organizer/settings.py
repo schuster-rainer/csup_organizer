@@ -41,7 +41,6 @@ INSTALLED_APPS = [
     'content.apps.ContentConfig',
     'drivers.apps.DriversConfig',
     'events.apps.EventsConfig',
-    'leagues.apps.LeaguesConfig',
     'teams.apps.TeamsConfig',
 ]
 
