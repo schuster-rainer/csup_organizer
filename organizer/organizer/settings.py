@@ -38,6 +38,11 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'content.apps.ContentConfig',
+    'drivers.apps.DriversConfig',
+    'events.apps.EventsConfig',
+    'leagues.apps.LeaguesConfig',
+    'teams.apps.TeamsConfig',
 ]
 
 MIDDLEWARE = [
