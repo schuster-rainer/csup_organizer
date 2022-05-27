@@ -2,6 +2,9 @@ from django.db import models
 from django.contrib.auth.models import User
 
 class League(models.Model):
+    class Meta:
+        abstract = True
+    
     name = models.CharField(max_length=50)
     website = models.CharField(max_length=500, blank=True)
     description = models.TextField(max_length=10000)
@@ -64,10 +67,11 @@ class League(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
 
-    class Meta:
-        abstract = True
 
 class TeamLeague(League):
+    class Meta:
+        db_table='team_leagues'
+    
     participants_per_team = models.PositiveSmallIntegerField(default=2)
     allows_reserve_driver = models.BooleanField(default=False)
     
@@ -83,7 +87,10 @@ class TeamLeague(League):
         ]
     )
 
-class SingleLeague(League):    
+class SingleLeague(League):  
+    class Meta:
+        db_table='single_leagues'  
+    
     points_calculation_type = models.CharField(
         max_length=30, 
         default='all', 
@@ -95,6 +102,9 @@ class SingleLeague(League):
     )
 
 class Race(models.Model):
+    class Meta:
+        db_table='races'
+    
     datetime = models.DateTimeField()
     league = models.ForeignKey(
         League, 
@@ -180,6 +190,9 @@ class Race(models.Model):
     updated = models.DateTimeField(auto_now=True)
 
 class RaceResults(models.Model):
+    class Meta:
+        db_table='race_results'
+    
     driver = models.ForeignKey(
         'drivers.Driver',
         on_delete=models.PROTECT,
@@ -203,6 +216,9 @@ class RaceResults(models.Model):
     fastest_lap_seconds = models.FloatField(blank=True)
 
 class Penalty(models.Model):
+    class Meta:
+        db_table='penalties'
+    
     results = models.ForeignKey(
         RaceResults, 
         on_delete=models.CASCADE,

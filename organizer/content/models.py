@@ -1,6 +1,9 @@
 from django.db import models
 
 class Track(models.Model):
+    class Meta:
+        db_table='tracks'
+    
     name = models.CharField(
         max_length=100, 
         default='thunder_point_gp', 
@@ -43,6 +46,9 @@ class Track(models.Model):
 
 
 class Car(models.Model):
+    class Meta:
+        db_table='cars'
+    
     name = models.CharField(
         max_length=20, 
         default='road_rebel', 
