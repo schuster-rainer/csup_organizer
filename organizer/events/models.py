@@ -1,15 +1,52 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.db.models.functions import Lower
+from django.core.validators import MaxLengthValidator, MinLengthValidator, URLValidator, MaxValueValidator
 
 class League(models.Model):
     class Meta:
         abstract = True
         ordering = ['-created']
+        constraints=[
+            models.UniqueConstraint(Lower('name'), 'season', name="unique_%(class)s_lower_name_season")
+        ]
     
-    name = models.CharField(max_length=50)
-    website = models.CharField(max_length=500, blank=True)
-    description = models.TextField(max_length=10000)
-    season = models.PositiveSmallIntegerField(blank=True)
+    name = models.CharField(
+        max_length=50,
+        validators=[
+            MinLengthValidator(3), 
+            MaxLengthValidator(50)
+        ],
+    )
+
+    abbreviation = models.CharField(
+        max_length=10,
+        validators=[
+            MinLengthValidator(2), 
+            MaxLengthValidator(10)
+        ],
+        unique=True
+    )
+    season = models.PositiveSmallIntegerField(
+        blank=True,
+        validators=[MaxValueValidator(1000)],
+    )
+
+    website = models.CharField(
+        max_length=500,
+        validators=[
+            MaxLengthValidator(500),
+            URLValidator(schemes=['http', 'https'])
+        ],
+        blank=True
+    )
+    description = models.TextField(
+        max_length=10000,
+        validators=[
+            MinLengthValidator(50), 
+            MaxLengthValidator(10000)
+        ],
+    )
     previous_league_season = models.OneToOneField(
         'self',
         on_delete=models.SET_NULL,
@@ -106,6 +143,15 @@ class Race(models.Model):
     class Meta:
         db_table='races'
         ordering=['league', 'datetime']
+        indexes=[
+            models.Index(fields=['league'])
+        ]
+        constraints=[
+            models.UniqueConstraint(
+                fields=['datetime','league'], 
+                name="unique_%(class)s_lower_name_season"
+            )
+        ]
     
     datetime = models.DateTimeField()
     league = models.ForeignKey(
@@ -180,13 +226,14 @@ class Race(models.Model):
     ### SETTINGS
     number_values = [0,25,50,75,100,125,150,175,200,250,300,350,400,450,500]
     number_values_tuple = [(k,str(v)) for k,v in zip(number_values,number_values)]
-
-    drafting = models.PositiveSmallIntegerField(default=100, choices=number_values_tuple)
-    rubberband = models.PositiveSmallIntegerField(default=0, choices=number_values_tuple)
-    tire_wear = models.PositiveSmallIntegerField(default=100, choices=number_values_tuple)
-    fuel_consumption = models.PositiveSmallIntegerField(default=100, choices=number_values_tuple)
-    damage_from_opponents = models.PositiveSmallIntegerField(default=100, choices=number_values_tuple)
-    damage_from_environment = models.PositiveSmallIntegerField(default=100, choices=number_values_tuple)
+    validators=[MinLengthValidator(0), MaxLengthValidator(500)]
+    
+    drafting = models.PositiveSmallIntegerField(default=100, choices=number_values_tuple, validators=validators)
+    rubberband = models.PositiveSmallIntegerField(default=0, choices=number_values_tuple, validators=validators)
+    tire_wear = models.PositiveSmallIntegerField(default=100, choices=number_values_tuple, validators=validators)
+    fuel_consumption = models.PositiveSmallIntegerField(default=100, choices=number_values_tuple, validators=validators)
+    damage_from_opponents = models.PositiveSmallIntegerField(default=100, choices=number_values_tuple, validators=validators)
+    damage_from_environment = models.PositiveSmallIntegerField(default=100, choices=number_values_tuple, validators=validators)
 
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
@@ -195,6 +242,10 @@ class RaceResults(models.Model):
     class Meta:
         db_table='race_results'
         ordering=['race', 'driver', '-attended_race', '-finished_race', 'race_position']
+        indexes=[
+            models.Index(fields=['race']),
+            models.Index(fields=['driver'])
+        ]
     
     driver = models.ForeignKey(
         'drivers.Driver',
@@ -222,6 +273,9 @@ class Penalty(models.Model):
     class Meta:
         db_table='penalties'
         order_with_respect_to='results'
+        indexes=[
+            models.Index(fields=['results'])
+        ]
     
     results = models.ForeignKey(
         RaceResults, 
