@@ -1,7 +1,20 @@
+import re
 from django.db import models
 from django.contrib.auth.models import User
 from django.db.models.functions import Lower
 from django.core.validators import MaxLengthValidator, MinLengthValidator, URLValidator, MaxValueValidator
+from django.core.exceptions import ValidationError
+from django.utils.translation import gettext_lazy as _
+
+def validate_time_format(input):
+    import re
+    p=re.compile("[0-9]{2,3}:[0-9]{2}.[0-9]{3}")
+
+    if not p.match(input):
+        raise ValidationError(
+            _('%(input)s is not in the format 15:42.042!'),
+            params={'input': input},
+        )
 
 class League(models.Model):
     class Meta:
@@ -17,6 +30,7 @@ class League(models.Model):
             MinLengthValidator(3), 
             MaxLengthValidator(50)
         ],
+        help_text="Name of the League without the season number"
     )
 
     abbreviation = models.CharField(
@@ -30,6 +44,7 @@ class League(models.Model):
     season = models.PositiveSmallIntegerField(
         blank=True,
         validators=[MaxValueValidator(1000)],
+        help_text="Optional: Season of the League"
     )
 
     website = models.CharField(
@@ -50,13 +65,14 @@ class League(models.Model):
     previous_league_season = models.OneToOneField(
         'self',
         on_delete=models.SET_NULL,
-        null=True,
+        blank=True,
         related_name='next_league_season'
     )
     organizers = models.ManyToManyField(
         User, 
         on_delete=models.PROTECT,
-        related_name='leagues_organized'
+        related_name='leagues_organized',
+        help_text="Choose who organizes this league. Those people can add races, enter results and edit the league."
     )
 
     region = models.CharField(
@@ -82,7 +98,10 @@ class League(models.Model):
     #     ]
     # )
     
-    allocates_penalties = models.BooleanField(default=False)
+    allocates_penalties = models.BooleanField(
+        default=False,
+        help_text="Are penalties allocated in this league, if someone drives unsportmanlikely?"
+    )
 
     points_p1 = models.PositiveSmallIntegerField(default=20)
     points_p2 = models.PositiveSmallIntegerField(default=16)
@@ -97,10 +116,13 @@ class League(models.Model):
     points_p11 = models.PositiveSmallIntegerField(default=2)
     points_p12 = models.PositiveSmallIntegerField(default=1)
 
-    points_quali = models.PositiveSmallIntegerField(default=1)
+    points_pole = models.PositiveSmallIntegerField(default=1)
     points_fastest_lap = models.PositiveSmallIntegerField(default=1)
 
-    points_for_attendance = models.BooleanField(default=False)
+    points_for_attendance = models.BooleanField(
+        default=False,
+        help_text="Does someone get points, if he/she attended, but did not finish the quali/race? Quali finishers will go before those who dropped during Quali."
+    )
 
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
@@ -109,9 +131,29 @@ class League(models.Model):
 class TeamLeague(League):
     class Meta:
         db_table='team_leagues'
+        field=[
+            "name","abbreviation","season","website","description","previous_league_season",
+            "organizers", "region", "allocates_penalties",
+            "points_p1","points_p2","points_p3","points_p4","points_p5","points_p6",
+            "points_p7","points_p8","points_p9","points_p10","points_p11","points_p12",
+            "points_pole","points_fastest_lap","points_for_attendance","participants_per_team",
+            "max_number_of_reserve_drivers","points_calculation_type"
+        ]
     
-    participants_per_team = models.PositiveSmallIntegerField(default=2)
-    allows_reserve_driver = models.BooleanField(default=False)
+    participants_per_team = models.PositiveSmallIntegerField(
+        default=2,
+        validators=[
+            MinLengthValidator(1), 
+            MaxLengthValidator(12)
+        ],
+    )
+    max_number_of_reserve_drivers = models.PositiveSmallIntegerField(
+        default=0,
+        validators=[
+            MinLengthValidator(0), 
+            MaxLengthValidator(12)
+        ],
+    )
     
     points_calculation_type = models.CharField(
         max_length=30, 
@@ -127,7 +169,15 @@ class TeamLeague(League):
 
 class SingleLeague(League):  
     class Meta:
-        db_table='single_leagues'  
+        db_table='single_leagues'
+        field=[
+            "name","abbreviation","season","website","description","previous_league_season",
+            "organizers", "region", "allocates_penalties",
+            "points_p1","points_p2","points_p3","points_p4","points_p5","points_p6",
+            "points_p7","points_p8","points_p9","points_p10","points_p11","points_p12",
+            "points_pole","points_fastest_lap","points_for_attendance",
+            "points_calculation_type"
+        ]
     
     points_calculation_type = models.CharField(
         max_length=30, 
@@ -151,6 +201,13 @@ class Race(models.Model):
                 fields=['datetime','league'], 
                 name="unique_%(class)s_lower_name_season"
             )
+        ]
+        field=[
+            "datetime","track","car",
+            "quali_type","quali_duration_mode", "quali_duration", "quali_collisions",
+            "race_duration_mode", "race_duration", "race_collisions",
+            "drafting","rubberband","tire_wear","fuel_consumption",
+            "damage_from_opponents","damage_from_environment"
         ]
     
     datetime = models.DateTimeField()
@@ -246,6 +303,11 @@ class RaceResults(models.Model):
             models.Index(fields=['race']),
             models.Index(fields=['driver'])
         ]
+        fields=[
+            "driver","race","attended_quali","quali_position","quali_time_seconds"
+            ,"attended_race","finished_race",
+            "race_position","race_time_seconds","lappings","fastest_lap_seconds"
+        ]
     
     driver = models.ForeignKey(
         'drivers.Driver',
@@ -259,15 +321,36 @@ class RaceResults(models.Model):
     )
 
     attended_quali = models.BooleanField(blank=True)
-    quali_position = models.PositiveSmallIntegerField(blank=True)
-    quali_time_seconds = models.FloatField(blank=True)
+    quali_position = models.PositiveSmallIntegerField(
+        blank=True,
+        validators=[MinLengthValidator(1), MaxLengthValidator(12)]
+    )
+    quali_time_seconds = models.FloatField(
+        blank=True,
+        help_text="Please use the format 00:26.042",
+        validators=[validate_time_format]
+    )
 
     attended_race = models.BooleanField(default=True)
     finished_race = models.BooleanField(default=True)
-    race_position = models.PositiveSmallIntegerField(blank=True)
-    race_time_seconds = models.FloatField(blank=True)
-    lappings = models.PositiveSmallIntegerField(blank=True)
-    fastest_lap_seconds = models.FloatField(blank=True)
+    race_position = models.PositiveSmallIntegerField(
+        blank=True,
+        validators=[MinLengthValidator(1), MaxLengthValidator(12)]
+    )
+    race_time_seconds = models.FloatField(
+        blank=True,
+        help_text="Please use the format 15:58.042",
+        validators=[validate_time_format]
+    )
+    lappings = models.PositiveSmallIntegerField(
+        blank=True,
+        help_text="How often has the driver been lapped?"
+    )
+    fastest_lap_seconds = models.FloatField(
+        blank=True,
+        help_text="Please use the format 00:25.042",
+        validators=[validate_time_format]
+    )
 
 class Penalty(models.Model):
     class Meta:
@@ -275,6 +358,10 @@ class Penalty(models.Model):
         order_with_respect_to='results'
         indexes=[
             models.Index(fields=['results'])
+        ]
+        fields=[
+            "type",
+            "amount"
         ]
     
     results = models.ForeignKey(
@@ -290,4 +377,7 @@ class Penalty(models.Model):
             ('position', 'Position Penalty'),
         ]
     )
-    amount = models.FloatField(default=2)
+    number = models.FloatField(
+        default=2,
+        help_text="For time penalties use format '2.5' (for 2.5 seconds penalty), for positions use a simple digit."
+    )

@@ -1,3 +1,4 @@
+from dataclasses import field
 from django.db import models
 from django.contrib.auth.models import User
 from django.db.models.functions import Lower
@@ -19,6 +20,7 @@ class Driver(models.Model):
             models.UniqueConstraint(Lower('name'), name="unique_lower_name"),
 
         ]
+        fields=["name", "region", "country", "device", "primary_color", "secondary_color", "tertiary_color"]
     
     user = models.OneToOneField(
         User, 

@@ -14,6 +14,7 @@ class Team(models.Model):
             models.UniqueConstraint(Lower('name'), name="unique_lower_name"),
             models.UniqueConstraint(Lower('tag'), name="unique_lower_tag"),
         ]
+        fields=["name","tag"]
     
     name = models.CharField(
         max_length=40,
@@ -23,7 +24,7 @@ class Team(models.Model):
         ],
         unique=True
     )
-    
+
     tag = models.CharField(
         max_length=5,
         validators=[
