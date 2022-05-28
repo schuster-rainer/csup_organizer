@@ -1,4 +1,4 @@
-from dataclasses import field
+import pytz
 from django.db import models
 from django.contrib.auth.models import User
 from django.db.models.functions import Lower
@@ -67,6 +67,12 @@ class Driver(models.Model):
         max_length=50,
         choices=COUNTRIES, 
         blank=True
+    )
+
+    timezone = models.CharField(
+        max_length=30,
+        default="UTC",
+        choices=[(timezone,timezone) for timezone in pytz.common_timezones]
     )
     
     device = models.CharField(
