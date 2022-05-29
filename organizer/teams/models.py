@@ -8,13 +8,12 @@ class Team(models.Model):
         ordering=['name']
         indexes=[
             models.Index(fields=['name']),
-            models.Index(fields=['league']),
         ]
         constraints=[
-            models.UniqueConstraint(Lower('name'), name="unique_lower_name"),
-            models.UniqueConstraint(Lower('tag'), name="unique_lower_tag"),
+            models.UniqueConstraint(Lower('name'), name="unique_lower_team_name"),
+            models.UniqueConstraint(Lower('tag'), name="unique_lower_team_tag"),
         ]
-        fields=["name","tag"]
+        #fields=["name","tag"]
     
     name = models.CharField(
         max_length=40,
@@ -36,6 +35,5 @@ class Team(models.Model):
 
     leagues = models.ManyToManyField(
         'events.TeamLeague', 
-        on_delete=models.PROTECT,
         related_name='teams'
     )

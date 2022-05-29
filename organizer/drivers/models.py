@@ -13,14 +13,12 @@ class Driver(models.Model):
         indexes=[
             models.Index(fields=['user']),
             models.Index(fields=['name']),
-            models.Index(fields=['teams']),
-            models.Index(fields=['leagues']),
         ]
         constraints=[
-            models.UniqueConstraint(Lower('name'), name="unique_lower_name"),
+            models.UniqueConstraint(Lower('name'), name="unique_lower_driver_name"),
 
         ]
-        fields=["name", "region", "country", "device", "primary_color", "secondary_color", "tertiary_color"]
+        #fields=["name", "region", "country", "device", "primary_color", "secondary_color", "tertiary_color"]
     
     user = models.OneToOneField(
         User, 
@@ -30,7 +28,7 @@ class Driver(models.Model):
 
     name = models.CharField(
         max_length=25,
-        default=User.get_username(),
+        #default=User.get_username(),
         validators=[
             MinLengthValidator(3), 
             MaxLengthValidator(25)
@@ -40,13 +38,11 @@ class Driver(models.Model):
 
     teams = models.ManyToManyField(
         'teams.Team', 
-        on_delete=models.PROTECT,
         related_name='drivers'
     )
 
     leagues = models.ManyToManyField(
         'events.SingleLeague', 
-        on_delete=models.PROTECT,
         related_name='drivers'
     )
 

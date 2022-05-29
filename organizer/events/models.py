@@ -18,7 +18,6 @@ def validate_time_format(input):
 
 class League(models.Model):
     class Meta:
-        abstract = True
         ordering = ['-created']
         constraints=[
             models.UniqueConstraint(Lower('name'), 'season', name="unique_%(class)s_lower_name_season")
@@ -64,13 +63,12 @@ class League(models.Model):
     )
     previous_league_season = models.OneToOneField(
         'self',
-        on_delete=models.SET_NULL,
+        on_delete=models.DO_NOTHING,
         blank=True,
         related_name='next_league_season'
     )
     organizers = models.ManyToManyField(
         User, 
-        on_delete=models.PROTECT,
         related_name='leagues_organized',
         help_text="Choose who organizes this league. Those people can add races, enter results and edit the league."
     )
@@ -131,14 +129,14 @@ class League(models.Model):
 class TeamLeague(League):
     class Meta:
         db_table='team_leagues'
-        field=[
-            "name","abbreviation","season","website","description","previous_league_season",
-            "organizers", "region", "allocates_penalties",
-            "points_p1","points_p2","points_p3","points_p4","points_p5","points_p6",
-            "points_p7","points_p8","points_p9","points_p10","points_p11","points_p12",
-            "points_pole","points_fastest_lap","points_for_attendance","participants_per_team",
-            "max_number_of_reserve_drivers","points_calculation_type"
-        ]
+        # field=[
+        #     "name","abbreviation","season","website","description","previous_league_season",
+        #     "organizers", "region", "allocates_penalties",
+        #     "points_p1","points_p2","points_p3","points_p4","points_p5","points_p6",
+        #     "points_p7","points_p8","points_p9","points_p10","points_p11","points_p12",
+        #     "points_pole","points_fastest_lap","points_for_attendance","participants_per_team",
+        #     "max_number_of_reserve_drivers","points_calculation_type"
+        # ]
     
     participants_per_team = models.PositiveSmallIntegerField(
         default=2,
@@ -170,14 +168,14 @@ class TeamLeague(League):
 class SingleLeague(League):  
     class Meta:
         db_table='single_leagues'
-        field=[
-            "name","abbreviation","season","website","description","previous_league_season",
-            "organizers", "region", "allocates_penalties",
-            "points_p1","points_p2","points_p3","points_p4","points_p5","points_p6",
-            "points_p7","points_p8","points_p9","points_p10","points_p11","points_p12",
-            "points_pole","points_fastest_lap","points_for_attendance",
-            "points_calculation_type"
-        ]
+        # field=[
+        #     "name","abbreviation","season","website","description","previous_league_season",
+        #     "organizers", "region", "allocates_penalties",
+        #     "points_p1","points_p2","points_p3","points_p4","points_p5","points_p6",
+        #     "points_p7","points_p8","points_p9","points_p10","points_p11","points_p12",
+        #     "points_pole","points_fastest_lap","points_for_attendance",
+        #     "points_calculation_type"
+        # ]
     
     points_calculation_type = models.CharField(
         max_length=30, 
@@ -202,13 +200,13 @@ class Race(models.Model):
                 name="unique_%(class)s_lower_name_season"
             )
         ]
-        field=[
-            "datetime","track","car",
-            "quali_type","quali_duration_mode", "quali_duration", "quali_collisions",
-            "race_duration_mode", "race_duration", "race_collisions",
-            "drafting","rubberband","tire_wear","fuel_consumption",
-            "damage_from_opponents","damage_from_environment"
-        ]
+        # field=[
+        #     "datetime","track","car",
+        #     "quali_type","quali_duration_mode", "quali_duration", "quali_collisions",
+        #     "race_duration_mode", "race_duration", "race_collisions",
+        #     "drafting","rubberband","tire_wear","fuel_consumption",
+        #     "damage_from_opponents","damage_from_environment"
+        # ]
     
     datetime = models.DateTimeField()
     league = models.ForeignKey(
@@ -303,11 +301,11 @@ class RaceResults(models.Model):
             models.Index(fields=['race']),
             models.Index(fields=['driver'])
         ]
-        fields=[
-            "driver","race","attended_quali","quali_position","quali_time_seconds"
-            ,"attended_race","finished_race",
-            "race_position","race_time_seconds","lappings","fastest_lap_seconds"
-        ]
+        # fields=[
+        #     "driver","race","attended_quali","quali_position","quali_time_seconds"
+        #     ,"attended_race","finished_race",
+        #     "race_position","race_time_seconds","lappings","fastest_lap_seconds"
+        # ]
     
     driver = models.ForeignKey(
         'drivers.Driver',
@@ -359,10 +357,10 @@ class Penalty(models.Model):
         indexes=[
             models.Index(fields=['results'])
         ]
-        fields=[
-            "type",
-            "amount"
-        ]
+        # fields=[
+        #     "type",
+        #     "amount"
+        # ]
     
     results = models.ForeignKey(
         RaceResults, 
