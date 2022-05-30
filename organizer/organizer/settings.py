@@ -37,12 +37,36 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
+    'django.contrib.sites',
     'django.contrib.staticfiles',
     'content.apps.ContentConfig',
     'drivers.apps.DriversConfig',
     'events.apps.EventsConfig',
     'teams.apps.TeamsConfig',
+    'bootstrap5',
+
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    'allauth.socialaccount.providers.discord',
 ]
+
+# see https://django-allauth.readthedocs.io/en/stable/installation.html
+SITE_ID = 3
+
+# Provider specific settings
+SOCIALACCOUNT_PROVIDERS = {
+    # 'discord': {
+    #     # For each OAuth based provider, either add a ``SocialApp``
+    #     # (``socialaccount`` app) containing the required client
+    #     # credentials, or list them here:
+    #     'APP': {
+    #         'client_id': '980558392584208404',
+    #         'secret': 'b9204b5ce6172288ad0497cdd9005dcfab51490920fc34d44595ccb2390e2ce7',
+    #         'key': 'b9204b5ce6172288ad0497cdd9005dcfab51490920fc34d44595ccb2390e2ce7'
+    #     }
+    # }
+}
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -59,7 +83,7 @@ ROOT_URLCONF = 'organizer.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -71,6 +95,16 @@ TEMPLATES = [
         },
     },
 ]
+
+# see https://django-allauth.readthedocs.io/en/stable/installation.html
+AUTHENTICATION_BACKENDS = [
+    # Needed to login by username in Django admin, regardless of `allauth`
+    'django.contrib.auth.backends.ModelBackend',
+
+    # `allauth` specific authentication methods, such as login by e-mail
+    'allauth.account.auth_backends.AuthenticationBackend',
+]
+
 
 WSGI_APPLICATION = 'organizer.wsgi.application'
 
@@ -133,7 +167,13 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 
+STATICFILES_DIRS = [
+    BASE_DIR / "static",
+]
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+

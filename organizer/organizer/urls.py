@@ -15,8 +15,14 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from .views import HomeView, register_request
 
 urlpatterns = [
+    path('home', HomeView.as_view()),
     path('events/', include('events.urls')),
     path('admin/', admin.site.urls),
+    path('accounts/', include('allauth.urls')),
+    #path('accounts/register', register_request, name="register"),
+    #path('accounts/', include('django.contrib.auth.urls')),
+
 ]

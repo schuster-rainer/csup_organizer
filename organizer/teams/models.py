@@ -33,7 +33,33 @@ class Team(models.Model):
         unique=True
     )
 
-    leagues = models.ManyToManyField(
-        'events.TeamLeague', 
-        related_name='teams'
+    # leagues = models.ManyToManyField(
+    #     'events.TeamLeague', 
+    #     related_name='teams'
+    # )
+
+class TeamParticipation(models.Model):
+    class Meta:
+        db_table='team_participations'
+    
+    team = models.ForeignKey(
+        Team,
+        on_delete=models.CASCADE,
+        related_name='participations'
+    )
+
+    league = models.ForeignKey(
+        'events.League', 
+        on_delete=models.CASCADE,
+        related_name='team_participations'
+    )
+
+    drivers = models.ManyToManyField(
+        'drivers.Driver',
+        related_name='team_driver_participations'
+    )
+
+    reserve_drivers = models.ManyToManyField(
+        'drivers.Driver',
+        related_name='team_reserve_driver_participations'
     )

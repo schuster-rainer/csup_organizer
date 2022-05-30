@@ -116,7 +116,8 @@ class League(models.Model):
         validators=[
             MaxLengthValidator(12)
         ],
-        help_text="Optional: How many drivers will be promoted to higher group?"
+        default=0,
+        help_text="Optional: How many drivers will be promoted or advance to higher group?"
     )
 
     number_demotion = models.PositiveSmallIntegerField(
@@ -124,6 +125,7 @@ class League(models.Model):
         validators=[
             MaxLengthValidator(12)
         ],
+        default=0,
         help_text="Optional: How many drivers will be demoted to a lower group?"
     )
     
@@ -143,14 +145,15 @@ class League(models.Model):
     points_pole = models.PositiveSmallIntegerField(default=1)
     points_fastest_lap = models.PositiveSmallIntegerField(default=1)
 
-    points_for_attendance = models.BooleanField(
-        default=False,
-        help_text="Does someone get points, if he/she attended, but did not finish the quali/race? Quali finishers will go before those who dropped during Quali."
-    )
-    
-    allow_registration_after_start = models.BooleanField(
+    # not needing because organizer 
+    # points_for_attendance = models.BooleanField(
+    #     default=False,
+    #     help_text="Does someone get points, if he/she attended, but did not finish the quali/race? Quali finishers will go before those who dropped during Quali."
+    # )
+
+    allow_application_after_start = models.BooleanField(
         default=True,
-        help_text="Can you still register after the first race?"
+        help_text="Can you still apply after the first race?"
     )
 
     finished = models.BooleanField(
@@ -200,6 +203,52 @@ class TeamLeague(League):
             ('use_best', 'Only use best team result per race'),
             ('use_two_best', 'Only use the two best team results per race'),
         ]
+    )
+
+class Application(models.Model):
+    class Meta:
+        db_table='applications'
+    
+    # class Meta:
+    #     ordering = ['-created']
+    #     constraints=[
+    #         models.UniqueConstraint(Lower('name'), Lower('group'), 'season', name="unique_%(class)s_lower_name_group_season")
+    #     ]
+    league = models.ForeignKey(
+        League, 
+        on_delete=models.CASCADE,
+        related_name='applications'
+    )
+
+class TeamApplication(Application):
+    class Meta:
+        db_table='team_applications'
+    
+    team = models.ForeignKey(
+        'teams.Team',
+        on_delete=models.CASCADE,
+        related_name='applications'
+    )
+
+    drivers = models.ManyToManyField(
+        'drivers.Driver',
+        related_name='team_driver_applications'
+    )
+
+    reserve_drivers = models.ManyToManyField(
+        'drivers.Driver',
+        related_name='team_reserve_driver_applications'
+    )
+
+
+class SingleApplication(Application):
+    class Meta:
+        db_table='single_applications'
+    
+    driver = models.ForeignKey(
+        'drivers.Driver',
+        on_delete=models.CASCADE,
+        related_name='single_driver_applications'
     )
 
 class SingleLeague(League):  
@@ -257,10 +306,16 @@ class Race(models.Model):
         on_delete=models.PROTECT,
         related_name='races'
     )
-    car = models.ForeignKey(
+    # car = models.ForeignKey(
+    #     'content.Car', 
+    #     on_delete=models.PROTECT,
+    #     related_name='races'
+    # )
+    
+    cars = models.ManyToManyField(
         'content.Car', 
-        on_delete=models.PROTECT,
-        related_name='races'
+        related_name='races_used',
+        help_text="Choose the car(s) that are allowed for this race."
     )
 
     ### QUALI
@@ -331,7 +386,7 @@ class Race(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
 
-class RaceResults(models.Model):
+class RaceResult(models.Model):
     class Meta:
         db_table='race_results'
         ordering=['race', 'driver', '-attended_race', '-finished_race', 'race_position']
@@ -352,6 +407,12 @@ class RaceResults(models.Model):
     )
     race = models.ForeignKey(
         Race,
+        on_delete=models.PROTECT,
+        related_name='results'
+
+    )
+    car = models.ForeignKey(
+        'content.Car', 
         on_delete=models.PROTECT,
         related_name='results'
     )
@@ -401,7 +462,7 @@ class Penalty(models.Model):
         # ]
     
     results = models.ForeignKey(
-        RaceResults, 
+        RaceResult, 
         on_delete=models.CASCADE,
         related_name='penalties'
     )
@@ -411,9 +472,11 @@ class Penalty(models.Model):
         choices = [
             ('time', 'Time Penalty'),
             ('position', 'Position Penalty'),
+            ('disqualified', 'Disqualified'),
         ]
     )
     number = models.FloatField(
         default=2,
-        help_text="For time penalties use format '2.5' (for 2.5 seconds penalty), for positions use a simple digit."
+        help_text="For time penalties use format '2.5' (for 2.5 seconds penalty), for positions use a simple digit. Empty for 'Disqualified'.",
+        blank=True
     )
