@@ -29,7 +29,7 @@ class League(models.Model):
             MinLengthValidator(3), 
             MaxLengthValidator(50)
         ],
-        help_text="Full name of the league without the group and season number, see below"
+        help_text="Full name of the league without the group and season number, see below. Needs to be unique together with group and season."
     )
 
     abbreviation = models.CharField(
@@ -37,11 +37,11 @@ class League(models.Model):
         validators=[
             MinLengthValidator(2), 
             MaxLengthValidator(10)
-        ],
-        unique=True
+        ]
     )
     
     group = models.CharField(
+        blank=True,
         max_length=50,
         validators=[
             MinLengthValidator(1), 
@@ -126,7 +126,7 @@ class League(models.Model):
         ],
         help_text="Optional: How many drivers will be demoted to a lower group?"
     )
-
+    
     points_p1 = models.PositiveSmallIntegerField(default=20)
     points_p2 = models.PositiveSmallIntegerField(default=16)
     points_p3 = models.PositiveSmallIntegerField(default=14)
@@ -147,6 +147,16 @@ class League(models.Model):
         default=False,
         help_text="Does someone get points, if he/she attended, but did not finish the quali/race? Quali finishers will go before those who dropped during Quali."
     )
+    
+    allow_registration_after_start = models.BooleanField(
+        default=True,
+        help_text="Can you still register after the first race?"
+    )
+
+    finished = models.BooleanField(
+        default=False,
+        help_text="Has the league been finished? Set this to True after the last race."
+    )
 
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
@@ -156,12 +166,13 @@ class TeamLeague(League):
     class Meta:
         db_table='team_leagues'
         # field=[
-        #     "name","abbreviation","season","website","description","previous_league_season",
+        #     "name","abbreviation","group","season","website","description","previous_league_season",
         #     "organizers", "region", "allocates_penalties",
         #     "points_p1","points_p2","points_p3","points_p4","points_p5","points_p6",
         #     "points_p7","points_p8","points_p9","points_p10","points_p11","points_p12",
         #     "points_pole","points_fastest_lap","points_for_attendance","participants_per_team",
-        #     "max_number_of_reserve_drivers","points_calculation_type"
+        #     "number_promotion", "number_demotion", "allow_registration_after_start", "finished",
+        #     "max_number_of_reserve_drivers","points_calculation_type", "finished"
         # ]
     
     participants_per_team = models.PositiveSmallIntegerField(
@@ -195,11 +206,12 @@ class SingleLeague(League):
     class Meta:
         db_table='single_leagues'
         # field=[
-        #     "name","abbreviation","season","website","description","previous_league_season",
+        #     "name","abbreviation","group","season","website","description","previous_league_season",
         #     "organizers", "region", "allocates_penalties",
         #     "points_p1","points_p2","points_p3","points_p4","points_p5","points_p6",
         #     "points_p7","points_p8","points_p9","points_p10","points_p11","points_p12",
         #     "points_pole","points_fastest_lap","points_for_attendance",
+        #     "number_promotion", "number_demotion", "allow_registration_after_start", "finished",
         #     "points_calculation_type"
         # ]
     
