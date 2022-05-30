@@ -20,7 +20,7 @@ class League(models.Model):
     class Meta:
         ordering = ['-created']
         constraints=[
-            models.UniqueConstraint(Lower('name'), 'season', name="unique_%(class)s_lower_name_season")
+            models.UniqueConstraint(Lower('name'), Lower('group'), 'season', name="unique_%(class)s_lower_name_group_season")
         ]
     
     name = models.CharField(
@@ -29,7 +29,7 @@ class League(models.Model):
             MinLengthValidator(3), 
             MaxLengthValidator(50)
         ],
-        help_text="Name of the League without the season number"
+        help_text="Full name of the league without the group and season number, see below"
     )
 
     abbreviation = models.CharField(
@@ -39,6 +39,15 @@ class League(models.Model):
             MaxLengthValidator(10)
         ],
         unique=True
+    )
+    
+    group = models.CharField(
+        max_length=50,
+        validators=[
+            MinLengthValidator(1), 
+            MaxLengthValidator(50)
+        ],
+        help_text="Optional: Group"
     )
     season = models.PositiveSmallIntegerField(
         blank=True,
@@ -52,7 +61,8 @@ class League(models.Model):
             MaxLengthValidator(500),
             URLValidator(schemes=['http', 'https'])
         ],
-        blank=True
+        blank=True,
+        help_text="Optional: Wesbite of the League"
     )
     description = models.TextField(
         max_length=10000,
@@ -99,6 +109,22 @@ class League(models.Model):
     allocates_penalties = models.BooleanField(
         default=False,
         help_text="Are penalties allocated in this league, if someone drives unsportmanlikely?"
+    )
+
+    number_promotion = models.PositiveSmallIntegerField(
+        blank=True,
+        validators=[
+            MaxLengthValidator(12)
+        ],
+        help_text="Optional: How many drivers will be promoted to higher group?"
+    )
+
+    number_demotion = models.PositiveSmallIntegerField(
+        blank=True,
+        validators=[
+            MaxLengthValidator(12)
+        ],
+        help_text="Optional: How many drivers will be demoted to a lower group?"
     )
 
     points_p1 = models.PositiveSmallIntegerField(default=20)
