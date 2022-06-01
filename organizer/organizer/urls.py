@@ -15,14 +15,19 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-from .views import HomeView, register_request
+from .views import HomeView
+from allauth.account.views import logout
+from allauth.socialaccount.providers.discord.views import oauth2_login, oauth2_callback
 
 urlpatterns = [
     path('home', HomeView.as_view()),
     path('events/', include('events.urls')),
     path('admin/', admin.site.urls),
-    path('accounts/', include('allauth.urls')),
-    #path('accounts/register', register_request, name="register"),
-    #path('accounts/', include('django.contrib.auth.urls')),
+
+    # path('accounts/', include('allauth.urls')), ## don't include all allauth urls
+    path('accounts/logout/', logout, name="account_logout"),
+    path('accounts/discord/login/', oauth2_login, name="discord_login"),
+    path('accounts/discord/login/callback/', oauth2_callback, name="discord_callback"),
+
 
 ]
