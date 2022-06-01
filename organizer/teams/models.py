@@ -33,6 +33,72 @@ class Team(models.Model):
         unique=True
     )
 
+    color_values=[
+        "black",
+        "grey",
+        "darkgrey",
+        "lightgrey",
+        "white",
+        "brown",
+        "firebrick",
+        "darkred",
+        "salmon",
+        "orangered",
+        "chocolate",
+        "darkorange",
+        "moccasin",
+        "orange",
+        "goldenrod",
+        "tan",
+        "gold",
+        "khaki",
+        "beige",
+        "olive",
+        "yellow",
+        "yellowgreen",
+        "darkolivegreen",
+        "lawngreen",
+        "forestgreen",
+        "limegreen",
+        "green",
+        "springgreen",
+        "aquamarine",
+        "turquoise",
+        "teal",
+        "cyan",
+        "skyblue",
+        "dodgerblue",
+        "royalblue",
+        "navy",
+        "blue",
+        "blueviolet",
+        "indigo",
+        "violet",
+        "purple",
+        "magenta",
+        "deeppink",
+        "crimson",
+        "lightpink",
+    ]
+
+    colors_tuple = [(k,v.capitalize()) for k,v in zip(color_values,color_values)]
+
+    primary_color = models.CharField(
+        max_length=30, 
+        default='black', 
+        choices = colors_tuple
+    )
+    secondary_color = models.CharField(
+        max_length=30, 
+        default='black', 
+        choices = colors_tuple
+    )
+    tertiary_color = models.CharField(
+        max_length=30, 
+        default='black', 
+        choices = colors_tuple
+    )
+
     # leagues = models.ManyToManyField(
     #     'events.TeamLeague', 
     #     related_name='teams'
