@@ -2,10 +2,7 @@
 
 ## To-Does First Version
 
-### Models
-- put help texts to each column
-- add meta class for more information? maybe list of columns that should be shown in the form
-- mark reserve drivers
+
 
 ### Views
 
@@ -13,11 +10,17 @@
 
 ## To-Does Second Version
 
+### Knowledge Base
+See https://material-admin-pro.startbootstrap.com/app-knowledgebase-home.html
+
 ### Points - best 2 of a team (Chalke)
 'best 2 in a race' in the case that you could have a race with 4 teams of 3 cars, but only the top 2 for each team scores team points?
 
 ### Collect Penalty Points
 If a player has a certain amount of penalties, his/her overall points are reduced by a certain number.
+
+### Achievements
+Show achievements, maybe even badges
 
 ## To-Does Third Version
 
