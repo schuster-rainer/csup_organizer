@@ -20,7 +20,7 @@ from allauth.account.views import logout
 from allauth.socialaccount.providers.discord.views import oauth2_login, oauth2_callback
 
 urlpatterns = [
-    path('home', HomeView.as_view()),
+    path('home', HomeView.as_view(), name="home"),
     path('events/', include('events.urls')),
     path('admin/', admin.site.urls),
 
