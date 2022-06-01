@@ -1,19 +1,33 @@
-{% extends "account/base.html" %}
+{% extends "base.html" %}
+{% load static %}
+{% load bootstrap5 %}
 {% load i18n %}
 
 {% block content %}
-{% if process == "connect" %}
-<h1>{% blocktrans with provider.name as provider %}Connect {{ provider }}{% endblocktrans %}</h1>
 
-<p>{% blocktrans with provider.name as provider %}You are about to connect a new third party account from {{ provider }}.{% endblocktrans %}</p>
-{% else %}
-<h1>{% blocktrans with provider.name as provider %}Sign In Via {{ provider }}{% endblocktrans %}</h1>
+<section>
+  <div class="container-xl px-4">
+      <div class="row justify-content-center">
+          <div class="col-lg-5">
+            {% if process == "connect" %}
+            <h1>{% blocktrans with provider.name as provider %}Connect {{ provider }}{% endblocktrans %}</h1>
 
-<p>{% blocktrans with provider.name as provider %}You are about to sign in using a third party account from {{ provider }}.{% endblocktrans %}</p>
-{% endif %}
+            <p>{% blocktrans with provider.name as provider %}You are about to connect a new third party account from {{ provider }}.{% endblocktrans %}</p>
+            {% else %}
+            <h1>{% blocktrans with provider.name as provider %}Sign In Via {{ provider }}{% endblocktrans %}</h1>
 
-<form method="post">
-  {% csrf_token %}
-  <button type="submit">{% trans "Continue" %}</button>
-</form>
+            <p>{% blocktrans with provider.name as provider %}You are about to sign in using a third party account from {{ provider }}.{% endblocktrans %}</p>
+            {% endif %}
+
+            {% bootstrap_messages %}
+            <form method="post" action="{% url 'discord_login' %}">
+              {% csrf_token %}
+              <button type="submit" class="btn btn-teal">{% trans "Continue" %}</button>
+            </form>
+
+          </div>
+        </div>
+    </div>
+</section>
+
 {% endblock %}
