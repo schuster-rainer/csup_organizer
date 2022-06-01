@@ -200,10 +200,34 @@ class TeamLeague(League):
             ('all', 'Points of every race count'),
             ('cut_worst', 'Do not use worst team result'),
             ('cut_two_worst', 'Do not use the two worst team results'),
-            ('use_best', 'Only use best team result per race'),
-            ('use_two_best', 'Only use the two best team results per race'),
+            ('total_time', 'Use the total time of all races to determine the standings.'),
         ]
     )
+
+class SingleLeague(League):  
+    class Meta:
+        db_table='single_leagues'
+        # field=[
+        #     "name","abbreviation","group","season","website","description","previous_league_season",
+        #     "organizers", "region", "allocates_penalties",
+        #     "points_p1","points_p2","points_p3","points_p4","points_p5","points_p6",
+        #     "points_p7","points_p8","points_p9","points_p10","points_p11","points_p12",
+        #     "points_pole","points_fastest_lap","points_for_attendance",
+        #     "number_promotion", "number_demotion", "allow_registration_after_start", "finished",
+        #     "points_calculation_type"
+        # ]
+    
+    points_calculation_type = models.CharField(
+        max_length=30, 
+        default='all', 
+        choices = [
+            ('all', 'Points of every race count'),
+            ('cut_worst', 'Do not use worst single/team result'),
+            ('cut_two_worst', 'Do not use the two worst single/team results'),
+            ('total_time', 'Use the total time of all races to determine the standings.'),
+        ]
+    )
+
 
 class Application(models.Model):
     class Meta:
@@ -249,29 +273,6 @@ class SingleApplication(Application):
         'drivers.Driver',
         on_delete=models.CASCADE,
         related_name='single_driver_applications'
-    )
-
-class SingleLeague(League):  
-    class Meta:
-        db_table='single_leagues'
-        # field=[
-        #     "name","abbreviation","group","season","website","description","previous_league_season",
-        #     "organizers", "region", "allocates_penalties",
-        #     "points_p1","points_p2","points_p3","points_p4","points_p5","points_p6",
-        #     "points_p7","points_p8","points_p9","points_p10","points_p11","points_p12",
-        #     "points_pole","points_fastest_lap","points_for_attendance",
-        #     "number_promotion", "number_demotion", "allow_registration_after_start", "finished",
-        #     "points_calculation_type"
-        # ]
-    
-    points_calculation_type = models.CharField(
-        max_length=30, 
-        default='all', 
-        choices = [
-            ('all', 'Points of every race count'),
-            ('cut_worst', 'Do not use worst single/team result'),
-            ('cut_two_worst', 'Do not use the two worst single/team results'),
-        ]
     )
 
 class Race(models.Model):
