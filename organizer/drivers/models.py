@@ -147,3 +147,31 @@ class Driver(models.Model):
         default='black', 
         choices = colors_tuple
     )
+
+
+class Message(models.Model):
+    class Meta:
+        db_table='messages'
+        ordering=['-created']
+
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='messages'
+    )
+
+    heading = models.CharField(
+        max_length=100,
+    )
+
+    message = models.TextField(
+        max_length=10000,
+        validators=[
+            MinLengthValidator(10), 
+            MaxLengthValidator(10000)
+        ],
+    )
+    
+    unread = models.BooleanField(
+        default=True
+    )
