@@ -104,6 +104,9 @@ class Team(models.Model):
     #     related_name='teams'
     # )
 
+    created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)
+
 class TeamParticipation(models.Model):
     class Meta:
         db_table='team_participations'
@@ -129,3 +132,6 @@ class TeamParticipation(models.Model):
         'drivers.Driver',
         related_name='team_reserve_driver_participations'
     )
+
+    created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)

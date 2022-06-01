@@ -244,6 +244,9 @@ class Application(models.Model):
         related_name='applications'
     )
 
+    created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)
+
 class TeamApplication(Application):
     class Meta:
         db_table='team_applications'
@@ -450,6 +453,9 @@ class RaceResult(models.Model):
         validators=[validate_time_format]
     )
 
+    created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)
+
 class Penalty(models.Model):
     class Meta:
         db_table='penalties'
@@ -481,3 +487,6 @@ class Penalty(models.Model):
         help_text="For time penalties use format '2.5' (for 2.5 seconds penalty), for positions use a simple digit. Empty for 'Disqualified'.",
         blank=True
     )
+
+    created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)
