@@ -152,7 +152,10 @@ class Driver(models.Model):
 class Message(models.Model):
     class Meta:
         db_table='messages'
-        ordering=['-created']
+        indexes=[
+            models.Index(fields=['user']),
+        ]
+        ordering=['user','-created']
 
     user = models.ForeignKey(
         User,
@@ -175,3 +178,6 @@ class Message(models.Model):
     unread = models.BooleanField(
         default=True
     )
+    
+    created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)
