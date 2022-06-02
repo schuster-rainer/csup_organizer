@@ -176,4 +176,5 @@ STATICFILES_DIRS = [
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-
+# page after successful login
+LOGIN_REDIRECT_URL  = '/events/dashboard'
