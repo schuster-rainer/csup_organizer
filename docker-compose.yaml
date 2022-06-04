@@ -10,9 +10,10 @@ services:
       POSTGRES_PASSWORD: ${DB_PASSWORD:-admin}
     ports:
       - "5432:5432"
+    env_file: .env
     volumes:
       - postgress-data:/var/lib/postgresql/data:rw
-      - ./docker/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./docker/init.sh:/docker-entrypoint-initdb.d/init.sh
 
   pgadmin:
     image: dpage/pgadmin4
